@@ -15,7 +15,7 @@ uploaded_file = st.file_uploader("Upload CSV Test Data")
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file)
 
-    with open(f"{model_name}.pkl", "rb") as f:
+    with open(f"model/{model_name}.pkl", "rb") as f:
         model = pickle.load(f)
 
     predictions = model.predict(data)
