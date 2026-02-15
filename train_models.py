@@ -1,5 +1,6 @@
 import pandas as pd
 import pickle
+import os
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score, f1_score, matthews_corrcoef
@@ -9,6 +10,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
+
+# -------- CREATE MODEL FOLDER IF NOT EXISTS --------
+os.makedirs("model", exist_ok=True)
 
 # Load dataset
 data = load_breast_cancer()
@@ -23,7 +27,7 @@ models = {
     "knn": KNeighborsClassifier(),
     "naive_bayes": GaussianNB(),
     "random_forest": RandomForestClassifier(),
-    "xgboost": XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+    "xgboost": XGBClassifier(eval_metric='logloss')
 }
 
 results = []
@@ -31,7 +35,7 @@ results = []
 for name, model in models.items():
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    y_prob = model.predict_proba(X_test)[:,1] if hasattr(model, "predict_proba") else y_pred
+    y_prob = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else y_pred
 
     metrics = {
         "Model": name,
@@ -45,8 +49,8 @@ for name, model in models.items():
 
     results.append(metrics)
 
-    # Save model
-    with open(f"{name}.pkl", "wb") as f:
+    # -------- SAVE MODEL INSIDE model/ FOLDER --------
+    with open(f"model/{name}.pkl", "wb") as f:
         pickle.dump(model, f)
 
 df = pd.DataFrame(results)
